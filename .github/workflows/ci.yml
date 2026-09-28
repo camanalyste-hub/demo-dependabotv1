@@ -1,0 +1,35 @@
+# Pipeline CI minimal : il teste CHAQUE pull request, y compris celles ouvertes par Dependabot.
+# Dependabot propose la mise à jour ; c'est ce pipeline qui vérifie qu'elle ne casse rien.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests et build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code de la PR
+        uses: actions/checkout@v7
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Installer les dépendances (versions exactes du package-lock.json)
+        run: npm ci
+
+      - name: Lancer les tests
+        run: npm test
+
+      - name: Compiler l'application
+        run: npm run build

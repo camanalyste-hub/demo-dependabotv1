@@ -1,11 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
+import { getRepoInfo, type RepoInfo } from './api/github.ts'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [repo, setRepo] = useState<RepoInfo | null>(null)
+
+  useEffect(() => {
+    getRepoInfo('Diakayeteba', 'demo-dependabotv1')
+      .then(setRepo)
+      .catch(() => setRepo(null))
+  }, [])
 
   return (
     <>
@@ -16,9 +24,12 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
-          <h1>Get started</h1>
+          <h1>Démo Dependabot</h1>
           <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+            Données chargées avec <code>axios</code> depuis l'API GitHub :{' '}
+            {repo
+              ? `${repo.fullName} · ${repo.stars} ★ · ${repo.openIssues} issues/PR ouvertes`
+              : 'chargement…'}
           </p>
         </div>
         <button

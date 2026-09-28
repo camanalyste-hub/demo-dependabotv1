@@ -1,6 +1,32 @@
-version: 2
+# Configuration de Dependabot pour ce dépôt de démonstration.
+# Référence complète des options :
+# https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference
+
+version: 2                          # Version du format de ce fichier (toujours 2)
+
 updates:
-  - package-ecosystem: "npm"
-    directory: "/" 
+  # ---- Bloc 1 : dépendances JavaScript (package.json + package-lock.json) ----
+  - package-ecosystem: "npm"        # Gestionnaire de paquets à surveiller
+    directory: "/"                  # Dossier qui contient le package.json
     schedule:
-      interval: "daily"
+      interval: "weekly"            # Fréquence de vérification : daily, weekly, monthly...
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 10    # Max de PR de mise à jour de VERSION ouvertes (défaut : 5)
+
+    groups:                         # Paquets liés : mis à jour ENSEMBLE, dans une seule PR
+      vite:                         # vite 8 exige @vitejs/plugin-react 6 (et inversement)
+        patterns: ["vite", "@vitejs/*"]
+      react:                        # react, react-dom et leurs types doivent rester alignés
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+
+    ignore:                         # Mises à jour que Dependabot ne doit PAS proposer
+      - dependency-name: "*eslint*" # Outillage ESLint : versions majeures migrées à la main
+        update-types: ["version-update:semver-major"]
+
+  # ---- Bloc 2 : actions utilisées par le pipeline CI (.github/workflows/ci.yml) ----
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
